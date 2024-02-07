@@ -82,3 +82,30 @@ func (t *Todos) Load(filename string) error {
 
 	return nil
 }
+
+func (t *Todos) Store(filename string) error {
+
+	buf := new(bytes.Buffer)
+
+	err := gob.NewEncoder(buf).Encode(t)
+	if err != nil {
+		return err
+	}
+
+	file, err := os.Open(filename)
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			file, err = os.Create(filename)
+			if err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+	}
+	defer file.Close()
+
+	file.Write(buf.Bytes())
+
+	return nil
+}
